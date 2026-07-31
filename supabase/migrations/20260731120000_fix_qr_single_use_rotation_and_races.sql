@@ -225,7 +225,7 @@ end;
 $$;
 
 -- =============================================
--- RPC: admin_generate_qr (serialize; single active)
+-- RPC: admin_generate_qr (serialize; single active; admin-only)
 -- =============================================
 create or replace function public.admin_generate_qr(p_admin_id uuid)
 returns json
@@ -237,7 +237,24 @@ declare
   v_new_token text;
   v_new_qr_id uuid;
   v_today date;
+  v_is_admin boolean;
 begin
+  -- Only the ADMIN role may rotate the QR. Verified inside the function so
+  -- the check cannot be bypassed by calling RPC from a member account.
+  select exists (
+    select 1 from public.profiles
+    where id = p_admin_id
+    and role = 'ADMIN'
+    and is_active = true
+  ) into v_is_admin;
+
+  if not v_is_admin then
+    return json_build_object(
+      'success', false,
+      'error', 'Hanya admin yang dapat membuat QR'
+    );
+  end if;
+
   perform pg_advisory_xact_lock(hashtext('absensi_kkn_qr_active_lock')::bigint);
 
   v_today := (now() at time zone 'Asia/Jakarta')::date;
