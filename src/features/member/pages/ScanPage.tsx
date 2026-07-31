@@ -42,13 +42,20 @@ export default function ScanPage() {
       s.clear();
     } catch {
       /* already stopped or element removed */
+    } finally {
+      if (scannerRef.current === s) {
+        scannerRef.current = null;
+      }
     }
-    scannerRef.current = null;
   }, []);
 
   const startScanner = useCallback(() => {
     const el = document.getElementById('qr-reader');
-    if (!el) return;
+    if (!el) {
+      setScanError('Gagal memuat area pemindai. Silakan refresh halaman.');
+      setPhase('camera-error');
+      return;
+    }
     el.replaceChildren();
     const scanner = new Html5Qrcode('qr-reader', false);
     scannerRef.current = scanner;
@@ -79,7 +86,7 @@ export default function ScanPage() {
       scan(
         { userId: user.id, token: text.trim() },
         {
-          onSuccess: (result) => {
+           onSuccess: (result) => {
             if (result?.success) {
               setScanResult(result);
               setPhase('success');
@@ -87,13 +94,21 @@ export default function ScanPage() {
             } else {
               setScanError(mapScanError(result?.error));
               setPhase('error');
-              busyRef.current = false;
+              scannerRef.current?.pause(true);
+              setTimeout(() => {
+                busyRef.current = false;
+                scannerRef.current?.resume();
+              }, 1500);
             }
           },
           onError: () => {
             setScanError('Terjadi kesalahan saat memproses absensi. Silakan coba lagi.');
             setPhase('error');
-            busyRef.current = false;
+            scannerRef.current?.pause(true);
+            setTimeout(() => {
+              busyRef.current = false;
+              scannerRef.current?.resume();
+            }, 1500);
           },
         },
       );
@@ -118,11 +133,17 @@ export default function ScanPage() {
   // --- mount scanner on active user ---
   useEffect(() => {
     if (authLoading || !user || !profile) return;
+    let cancelled = false;
+
     if (profile.is_active && isKknActiveNow()) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      startScanner();
+      (async () => {
+        await stopScanner();
+        if (!cancelled) startScanner();
+      })();
     }
+
     return () => {
+      cancelled = true;
       void stopScanner();
     };
   }, [authLoading, user, profile, startScanner, stopScanner]);

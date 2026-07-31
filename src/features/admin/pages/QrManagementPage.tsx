@@ -38,10 +38,10 @@ export default function QrManagementPage() {
   // Auto-regenerate: when countdown reaches 0, invalidate so useActiveQr
   // calls get_active_qr which will rotate expired tokens automatically.
   useEffect(() => {
-    if (countdown <= 0) {
+    if (!isLoading && qr && countdown <= 0) {
       refetch();
     }
-  }, [countdown, refetch]);
+  }, [countdown, isLoading, qr, refetch]);
 
   const handleGenerate = async () => {
     if (!isKknActive) return;

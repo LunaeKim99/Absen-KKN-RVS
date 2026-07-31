@@ -8,6 +8,23 @@ interface QrSessionWithUsedBy extends QrSession {
   profiles?: { name: string } | null;
 }
 
+/** Module-level guard: prevent concurrent auto-rotate RPC calls from client side. */
+let rotateInFlight: Promise<ActiveQrResponse | null> | null = null;
+
+async function rotateQrOnce(): Promise<ActiveQrResponse | null> {
+  if (rotateInFlight) return rotateInFlight;
+  rotateInFlight = (async () => {
+    const { data, error } = await supabase.rpc('get_active_qr');
+    if (error) throw error;
+    return data as ActiveQrResponse | null;
+  })();
+  try {
+    return await rotateInFlight;
+  } finally {
+    rotateInFlight = null;
+  }
+}
+
 /**
  * Fetch the currently valid active QR.
  * - If a valid (non-expired, active) QR exists, return it.
@@ -31,15 +48,24 @@ export function useActiveQr() {
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      if (data) return data as QrSessionWithUsedBy;
+      if (data) {
+        // Defensive profiles handling — may be object, array, or null depending on response
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const profilesRaw = (data as any).profiles;
+        let profileName: string | null = null;
+        if (Array.isArray(profilesRaw)) {
+          profileName = profilesRaw[0]?.name;
+        } else if (profilesRaw && typeof profilesRaw === 'object' && 'name' in profilesRaw) {
+          profileName = (profilesRaw as { name?: string }).name ?? null;
+        }
+        return {
+          ...data,
+          profiles: profileName ? { name: profileName } : null,
+        } as QrSessionWithUsedBy;
+      }
 
-      // No valid active QR (expired or none): auto-rotate via RPC.
-      const { data: rpcData, error: rpcError } = await supabase.rpc(
-        'get_active_qr',
-      );
-      if (rpcError) throw rpcError;
-
-      const rpc = rpcData as ActiveQrResponse | null;
+      // No valid active QR (expired or none): auto-rotate via RPC (guarded).
+      const rpc = await rotateQrOnce();
       if (!rpc?.success || !rpc.qr) return null;
 
       return {
