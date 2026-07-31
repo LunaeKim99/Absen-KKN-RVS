@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+  --color-brand: oklch(0.68 0.2 252);
+  --color-brand-hover: oklch(0.6 0.2 252);
+  --color-green-50: oklch(0.97 0.04 140);
+  --color-green-100: oklch(0.94 0.08 140);
+  --color-green-200: oklch(0.88 0.12 140);
+  --color-green-300: oklch(0.78 0.16 140);
+  --color-green-400: oklch(0.68 0.2 140);
+  --color-green-500: oklch(0.6 0.2 140);
+  --color-green-600: oklch(0.52 0.18 140);
+  --color-green-700: oklch(0.44 0.16 140);
+  --color-green-800: oklch(0.36 0.14 140);
+  --color-green-900: oklch(0.28 0.12 140);
+  --color-emerald-50: oklch(0.97 0.03 150);
+  --color-emerald-100: oklch(0.94 0.06 150);
+  --color-emerald-600: oklch(0.55 0.18 150);
+  --color-emerald-700: oklch(0.46 0.15 150);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-gray-50 font-sans antialiased text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+  }
+}
