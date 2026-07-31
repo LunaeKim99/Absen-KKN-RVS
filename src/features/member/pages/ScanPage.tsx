@@ -132,29 +132,29 @@ export default function ScanPage() {
   const scanInProgress = phase === 'processing' && isPending;
 
   return (
-    <div className="mx-auto w-full max-w-md space-y-4 pb-24">
+    <div className="w-full max-w-md space-y-4 pb-24 md:max-w-lg">
       <PageHeader title="Scan QR Absensi" />
 
       {!profile ? (
         <Card>
           <CardContent className="py-8 text-center">
             <CameraOff className="mx-auto h-10 w-10 text-amber-500" />
-            <p className="mt-3 text-sm font-medium text-gray-700">
+            <p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-300">
               Akun Anda tidak ditemukan.
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Hubungi admin untuk verifikasi akun Anda.
             </p>
           </CardContent>
         </Card>
-) : !profile.is_active ? (
+      ) : !profile.is_active ? (
         <Card>
           <CardContent className="py-8 text-center">
             <CameraOff className="mx-auto h-10 w-10 text-red-500" />
-            <p className="mt-3 text-sm font-medium text-gray-700">
+            <p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-300">
               Akun Anda telah ditangguhkan.
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Hubungi admin untuk informasi lebih lanjut.
             </p>
           </CardContent>
@@ -162,7 +162,7 @@ export default function ScanPage() {
       ) : !isKknActiveNow() ? (
         <Card>
           <CardContent className="py-8 text-center">
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {getKknStatus() === 'SELESAI'
                 ? 'Masa absensi KKN telah berakhir.'
                 : 'Absensi KKN belum dibuka.'}
@@ -174,24 +174,24 @@ export default function ScanPage() {
           {/* Instructions */}
           <Card>
             <CardContent className="space-y-3 pt-5">
-              <h3 className="text-sm font-semibold text-gray-900">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 Cara Menggunakan
               </h3>
-              <ul className="space-y-1 text-xs text-gray-600">
+              <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
                     1
                   </span>
                   Izinkan akses kamera di browser jika diminta.
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
                     2
                   </span>
                   Arahkan kamera ke QR code di layar admin.
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-[10px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
                     3
                   </span>
                   Pastikan QR masih berlaku (masa berlaku terbatas).
@@ -201,7 +201,7 @@ export default function ScanPage() {
           </Card>
 
           {/* Scanner viewport */}
-          <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-black">
+          <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-black dark:border-gray-800">
             <div id="qr-reader" className="min-h-[300px] w-full" />
             {scanInProgress && (
               <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/60">
@@ -217,11 +217,11 @@ export default function ScanPage() {
 
       {/* Error card for camera-error / scan-error */}
       {(phase === 'camera-error' || phase === 'error') && scanError && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
           <CardContent className="space-y-3 pt-5">
             <div className="flex items-start gap-3">
-              <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-              <p className="text-sm text-red-800">{scanError}</p>
+              <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+              <p className="text-sm text-red-800 dark:text-red-300">{scanError}</p>
             </div>
             <div className="flex gap-2">
               <Button

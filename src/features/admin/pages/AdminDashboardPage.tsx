@@ -34,10 +34,10 @@ const STATUS_ICON: Record<ApprovalStatus, React.ReactNode> = {
 };
 
 const STAT_CARD_CLASSES: Record<string, string> = {
-  total: 'bg-green-50 text-green-700 border-green-200',
-  hadir: 'bg-blue-50 text-blue-700 border-blue-200',
-  belum_hadir: 'bg-red-50 text-red-700 border-red-200',
-  terlambat: 'bg-amber-50 text-amber-700 border-amber-200',
+  total: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800',
+  hadir: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400',
+  belum_hadir: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400',
+  terlambat: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400',
 };
 
 export default function AdminDashboardPage() {
@@ -65,7 +65,7 @@ export default function AdminDashboardPage() {
         <PageHeader title="Dashboard Admin" />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-200" />
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
           ))}
         </div>
       </div>
@@ -150,25 +150,25 @@ export default function AdminDashboardPage() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Hari ke-</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Hari ke-</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {kkn.isWithinPeriod ? kkn.dayNumber : '-'}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-600">Sisa Hari</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Sisa Hari</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {kkn.remainingDays > 0 ? kkn.remainingDays : 0}
               </p>
             </div>
           </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
             <div
               className="h-3 rounded-full bg-green-600 transition-all duration-300"
               style={{ width: `${Math.min(kkn.progressPercentage, 100)}%` }}
             />
           </div>
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
             <span>{formatKknDate(kkn.startDate)}</span>
             <StatusBadge.AttendanceStatusBadge status={isKknActiveNow() ? 'HADIR' : 'ALPA'} />
             <span>{formatKknDate(kkn.endDate)}</span>
@@ -188,19 +188,19 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {recentAttendance.length === 0 ? (
-              <p className="py-4 text-center text-sm text-gray-500">Belum ada absensi</p>
+              <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada absensi</p>
             ) : (
               <div className="space-y-3">
                 {recentAttendance.map((a) => (
                   <div
                     key={a.id}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50"
                   >
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {a.profiles?.name ?? 'Unknown'}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {a.attendance_date} &middot;{' '}
                         {formatInTimeZone(a.check_in_at, KKN_CONFIG.TIMEZONE, 'HH:mm')} WIB
                       </p>
@@ -223,17 +223,17 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {recentRegistrations.length === 0 ? (
-              <p className="py-4 text-center text-sm text-gray-500">Belum ada pendaftaran</p>
+              <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">Belum ada pendaftaran</p>
             ) : (
               <div className="space-y-3">
                 {recentRegistrations.map((r) => (
                   <div
                     key={r.id}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50"
                   >
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{r.name}</p>
-                      <p className="text-xs text-gray-500">{r.nim}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{r.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{r.nim}</p>
                     </div>
                     <StatusBadge.ApprovalStatusBadge status={r.approval_status} />
                   </div>
@@ -279,12 +279,12 @@ function AccountStat({
   status?: ApprovalStatus;
 }) {
   return (
-    <div className="rounded-lg bg-gray-50 p-3">
+    <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
       <div className="flex items-center gap-2">
         {status && STATUS_ICON[status]}
-        <span className="text-xs font-medium text-gray-600">{label}</span>
+        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{label}</span>
       </div>
-      <p className="mt-1 text-xl font-bold text-gray-900">{value}</p>
+      <p className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
       {status && (
         <div className="mt-1">
           <StatusBadge.ApprovalStatusBadge status={status} />

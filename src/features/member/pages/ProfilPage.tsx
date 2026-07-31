@@ -238,8 +238,8 @@ export default function ProfilPage() {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-sm text-gray-600">{label}</span>
-      <span className="text-sm font-medium text-gray-900">{value}</span>
+      <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
+      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{value}</span>
     </div>
   );
 }

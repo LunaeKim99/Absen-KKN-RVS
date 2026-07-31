@@ -35,11 +35,13 @@ export default function QrManagementPage() {
     }
   }, [qr?.token]);
 
+  // Auto-regenerate: when countdown reaches 0, invalidate so useActiveQr
+  // calls get_active_qr which will rotate expired tokens automatically.
   useEffect(() => {
-    if (countdown <= 0 && qr?.is_active) {
+    if (countdown <= 0) {
       refetch();
     }
-  }, [countdown, qr?.is_active, refetch]);
+  }, [countdown, refetch]);
 
   const handleGenerate = async () => {
     if (!isKknActive) return;
@@ -92,7 +94,7 @@ export default function QrManagementPage() {
       )}
 
       {/* Main QR Card - always white for scannability */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-center" style={{ backgroundColor: '#fff' }}>
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-center dark:border-gray-800" style={{ backgroundColor: '#fff' }}>
         {isLoading ? (
           <div className="space-y-4">
             <div className="h-64 w-64 mx-auto animate-pulse rounded bg-gray-200" />
@@ -115,8 +117,8 @@ export default function QrManagementPage() {
             <div className="flex items-center justify-center gap-3">
               <Clock className="h-6 w-6 text-green-600" aria-hidden="true" />
               <div className="text-left">
-                <p className="text-xs text-gray-500">Berlaku hingga</p>
-                <p className="text-2xl font-mono font-bold text-gray-900 tabular-nums">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Berlaku hingga</p>
+                <p className="text-2xl font-mono font-bold text-gray-900 tabular-nums dark:text-gray-100">
                   {formatCountdown(countdown)}
                 </p>
               </div>
@@ -124,10 +126,10 @@ export default function QrManagementPage() {
 
             {/* Token (dev only) */}
             {import.meta.env.DEV && qr.token && (
-              <div className="rounded bg-gray-100 p-3 text-left">
-                <p className="text-xs text-gray-500 mb-1">Token (dev only)</p>
+              <div className="rounded bg-gray-100 p-3 text-left dark:bg-gray-800">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Token (dev only)</p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-xs font-mono text-gray-700 break-all bg-white px-2 py-1 rounded border">
+                  <code className="flex-1 text-xs font-mono text-gray-700 break-all bg-white px-2 py-1 rounded border dark:bg-gray-900 dark:text-gray-300">
                     {qr.token}
                   </code>
                   <Button
@@ -144,12 +146,12 @@ export default function QrManagementPage() {
 
             {/* Last used info */}
             {qr.used_by && qr.used_at && qr.profiles && (
-              <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-left">
-                <div className="flex items-center gap-2 text-green-700">
+              <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-left dark:bg-green-900/20 dark:border-green-800">
+                <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                   <UserCheck className="h-5 w-5" aria-hidden="true" />
                   <div>
                     <p className="font-medium">Terakhir digunakan oleh</p>
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-green-600 dark:text-green-300">
                       {qr.profiles.name} pada{' '}
                       {formatInTimeZone(qr.used_at, KKN_CONFIG.TIMEZONE, 'dd-MM-yyyy HH:mm')} WIB
                     </p>
@@ -159,7 +161,7 @@ export default function QrManagementPage() {
             )}
 
             {/* Generate new QR button */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
               <Button
                 variant="primary"
                 size="lg"
@@ -183,10 +185,10 @@ export default function QrManagementPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <Shield className="h-16 w-16 mx-auto text-gray-300" aria-hidden="true" />
+            <Shield className="h-16 w-16 mx-auto text-gray-300 dark:text-gray-600" aria-hidden="true" />
             <div>
-              <p className="font-medium text-gray-700">Tidak ada QR aktif</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="font-medium text-gray-700 dark:text-gray-300">Tidak ada QR aktif</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 Klik tombol di bawah untuk membuat QR baru
               </p>
             </div>
@@ -214,7 +216,7 @@ export default function QrManagementPage() {
 
         {/* Expired notice */}
         {qr && !qr.is_active && !isLoading && (
-          <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-800 text-sm">
+          <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-sm">
             QR ini sudah kedaluwarsa. Silakan buat QR baru.
           </div>
         )}
@@ -225,12 +227,12 @@ export default function QrManagementPage() {
         <Card>
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
                 <Clock className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Durasi QR</p>
-                <p className="font-semibold text-gray-900">{KKN_CONFIG.QR_TOKEN_EXPIRES_SECONDS} detik</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Durasi QR</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{KKN_CONFIG.QR_TOKEN_EXPIRES_SECONDS} detik</p>
               </div>
             </div>
           </CardContent>
@@ -239,12 +241,12 @@ export default function QrManagementPage() {
         <Card>
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                 <Shield className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Auto Refresh</p>
-                <p className="font-semibold text-gray-900">Setiap 3 detik</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Auto Refresh</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">Setiap 3 detik</p>
               </div>
             </div>
           </CardContent>
@@ -253,12 +255,12 @@ export default function QrManagementPage() {
         <Card>
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
                 <UserCheck className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Status KKN</p>
-                <p className="font-semibold text-gray-900">{isKknActive ? 'Berlangsung' : 'Tidak Aktif'}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Status KKN</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{isKknActive ? 'Berlangsung' : 'Tidak Aktif'}</p>
               </div>
             </div>
           </CardContent>

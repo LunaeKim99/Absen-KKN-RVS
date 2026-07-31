@@ -23,11 +23,11 @@ type AttendanceRow = {
 };
 
 const STATUS_STATS: { key: AttendanceStatus; label: string; className: string }[] = [
-  { key: 'HADIR', label: 'Hadir', className: 'bg-green-50 text-green-700' },
-  { key: 'TERLAMBAT', label: 'Terlambat', className: 'bg-amber-50 text-amber-700' },
-  { key: 'IZIN', label: 'Izin', className: 'bg-blue-50 text-blue-700' },
-  { key: 'SAKIT', label: 'Sakit', className: 'bg-orange-50 text-orange-700' },
-  { key: 'ALPA', label: 'Alpa', className: 'bg-red-50 text-red-700' },
+  { key: 'HADIR', label: 'Hadir', className: 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' },
+  { key: 'TERLAMBAT', label: 'Terlambat', className: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' },
+  { key: 'IZIN', label: 'Izin', className: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' },
+  { key: 'SAKIT', label: 'Sakit', className: 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400' },
+  { key: 'ALPA', label: 'Alpa', className: 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' },
 ];
 
 export default function RiwayatPage() {
@@ -67,7 +67,7 @@ export default function RiwayatPage() {
               <p className={`text-xl font-bold ${stat.className.replace('bg-', 'text-')}`}>
                 {summary[stat.key]}
               </p>
-              <p className="mt-0.5 text-[11px] text-gray-500">{stat.label}</p>
+              <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
@@ -85,7 +85,7 @@ export default function RiwayatPage() {
           <div className="flex-1">
             <label
               htmlFor="date-from"
-              className="mb-1 block text-sm font-medium text-gray-700"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Dari
             </label>
@@ -96,13 +96,13 @@ export default function RiwayatPage() {
               max={KKN_CONFIG.END_DATE}
               value={dateRange.from}
               onChange={handleFromChange}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
           </div>
           <div className="flex-1">
             <label
               htmlFor="date-to"
-              className="mb-1 block text-sm font-medium text-gray-700"
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Sampai
             </label>
@@ -113,7 +113,7 @@ export default function RiwayatPage() {
               max={KKN_CONFIG.END_DATE}
               value={dateRange.to}
               onChange={handleToChange}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
           </div>
         </CardContent>
@@ -134,17 +134,17 @@ export default function RiwayatPage() {
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden w-full overflow-x-auto rounded-xl border border-gray-200 md:block">
+          <div className="hidden w-full overflow-x-auto rounded-xl border border-gray-200 md:block dark:border-gray-800">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-800/50">
                 <tr>
-                  <th className="px-4 py-2.5 font-medium text-gray-600">
+                  <th className="px-4 py-2.5 font-medium text-gray-600 dark:text-gray-400">
                     Tanggal
                   </th>
-                  <th className="px-4 py-2.5 font-medium text-gray-600">
+                  <th className="px-4 py-2.5 font-medium text-gray-600 dark:text-gray-400">
                     Jam (WIB)
                   </th>
-                  <th className="px-4 py-2.5 font-medium text-gray-600">
+                  <th className="px-4 py-2.5 font-medium text-gray-600 dark:text-gray-400">
                     Status
                   </th>
                 </tr>
@@ -153,7 +153,7 @@ export default function RiwayatPage() {
                 {filtered.map((a: AttendanceRow) => (
                   <tr
                     key={a.id}
-                    className="border-t border-gray-100 last:border-b-0"
+                    className="border-t border-gray-100 last:border-b-0 dark:border-gray-800"
                   >
                     <td className="px-4 py-2.5">
                       {formatInTimeZone(
@@ -185,16 +185,16 @@ export default function RiwayatPage() {
               <Card key={a.id}>
                 <CardContent className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
-                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {formatInTimeZone(
                           a.attendance_date,
                           KKN_CONFIG.TIMEZONE,
                           'dd-MM-yyyy',
                         )}
                       </p>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                         <Clock className="h-3 w-3" />
                         <span>
                           {formatInTimeZone(

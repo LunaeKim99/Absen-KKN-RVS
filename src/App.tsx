@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastProvider } from '@/components/ui/Toast';
+import { ThemeProvider } from '@/hooks/useTheme';
 import { LoadingScreen } from '@/components/ui/Spinner';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { MemberLayout } from '@/components/layout/MemberLayout';
@@ -108,11 +109,13 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <RouterProvider router={router} />
-        </Suspense>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <Suspense fallback={<LoadingScreen />}>
+            <RouterProvider router={router} />
+          </Suspense>
+        </ToastProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

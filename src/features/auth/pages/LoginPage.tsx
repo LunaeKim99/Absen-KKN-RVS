@@ -114,7 +114,7 @@ export default function LoginPage() {
                 type="button"
                 tabIndex={-1}
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 aria-label={
                   showPassword ? 'Sembunyikan password' : 'Tampilkan password'
                 }
@@ -128,7 +128,7 @@ export default function LoginPage() {
             </div>
 
             {submitError && (
-              <p className="text-sm text-red-600" role="alert">
+              <p className="text-sm text-red-600 dark:text-red-400" role="alert">
                 {submitError}
               </p>
             )}
@@ -139,9 +139,9 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-gray-600">
+          <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
             Belum punya akun?{' '}
-            <Link to="/register" className="font-medium text-green-600">
+            <Link to="/register" className="font-medium text-green-600 dark:text-green-400">
               Daftar di sini
             </Link>
           </p>

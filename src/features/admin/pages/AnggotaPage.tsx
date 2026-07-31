@@ -21,8 +21,8 @@ function attendanceStats(member: AnggotaWithAttendance) {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-gray-400">{label}</p>
-      <p className="text-sm text-gray-700">{value}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">{label}</p>
+      <p className="text-sm text-gray-700 dark:text-gray-300">{value}</p>
     </div>
   );
 }
@@ -108,31 +108,31 @@ export default function AnggotaPage() {
         <CardContent className="overflow-x-auto p-0">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-gray-50">
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Nama</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">NIM</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Fakultas</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Jurusan</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Jumlah Hadir</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">% Kehadiran</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-700">Aksi</th>
+              <tr className="border-b bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Nama</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">NIM</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Fakultas</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Jurusan</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Jumlah Hadir</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">% Kehadiran</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="border-b">
+                  <tr key={i} className="border-b dark:border-gray-800">
                     {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
-                        <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+                        <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-500">
+                  <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                     Tidak ada anggota ditemukan
                   </td>
                 </tr>
@@ -140,16 +140,16 @@ export default function AnggotaPage() {
                 filtered.map((m) => {
                   const stats = attendanceStats(m);
                   return (
-                    <tr key={m.id} className="border-b hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-900">{m.name}</td>
-                      <td className="px-4 py-3 text-gray-600">{m.nim}</td>
-                      <td className="px-4 py-3 text-gray-600">{m.faculty}</td>
-                      <td className="px-4 py-3 text-gray-600">{m.major}</td>
-                      <td className="px-4 py-3 text-green-700 font-medium">{stats.hadir}/40</td>
+                    <tr key={m.id} className="border-b hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+                      <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{m.name}</td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{m.nim}</td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{m.faculty}</td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{m.major}</td>
+                      <td className="px-4 py-3 text-green-700 dark:text-green-400 font-medium">{stats.hadir}/40</td>
                       <td className="px-4 py-3">
                         <span className={`text-sm font-medium ${
-                          stats.present >= 80 ? 'text-green-600' :
-                          stats.present >= 60 ? 'text-amber-600' : 'text-red-600'
+                          stats.present >= 80 ? 'text-green-600 dark:text-green-400' :
+                          stats.present >= 60 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
                         }`}>{stats.present}%</span>
                       </td>
                       <td className="px-4 py-3">
@@ -214,13 +214,13 @@ export default function AnggotaPage() {
             <Card key={i}>
               <CardContent className="space-y-3 p-4">
                 {Array.from({ length: 8 }).map((_, j) => (
-                  <div key={j} className="h-4 w-32 animate-pulse rounded bg-gray-200" />
+                  <div key={j} className="h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
                 ))}
               </CardContent>
             </Card>
           ))
         ) : filtered.length === 0 ? (
-          <div className="text-center py-8 text-sm text-gray-500">
+          <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
             Tidak ada anggota ditemukan
           </div>
         ) : (
@@ -231,8 +231,8 @@ export default function AnggotaPage() {
                 <CardContent className="space-y-3 p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-semibold text-gray-900">{m.name}</p>
-                      <p className="text-sm text-gray-500">{m.nim}</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{m.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{m.nim}</p>
                     </div>
                     <StatusBadge.ApprovalStatusBadge status={m.approval_status} />
                   </div>
@@ -244,7 +244,7 @@ export default function AnggotaPage() {
                   </div>
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-20 rounded-full bg-gray-200">
+                      <div className="h-2 w-20 rounded-full bg-gray-200 dark:bg-gray-700">
                         <div
                           className={`h-2 rounded-full ${
                             stats.present >= 80 ? 'bg-green-600' :
@@ -254,8 +254,8 @@ export default function AnggotaPage() {
                         />
                       </div>
                       <span className={`text-xs font-medium ${
-                        stats.present >= 80 ? 'text-green-600' :
-                        stats.present >= 60 ? 'text-amber-600' : 'text-red-600'
+                        stats.present >= 80 ? 'text-green-600 dark:text-green-400' :
+                        stats.present >= 60 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
                       }`}>{stats.present}%</span>
                     </div>
                     <div className="flex gap-2">
@@ -312,13 +312,13 @@ export default function AnggotaPage() {
         {detailMember && (
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700 font-bold text-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700 font-bold text-lg dark:bg-green-900/30 dark:text-green-400">
                 {detailMember.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="font-semibold text-gray-900 text-lg">{detailMember.name}</p>
-                <p className="text-sm text-gray-500">{detailMember.nim} • {detailMember.email}</p>
-                <p className="text-sm text-gray-500">Status: {detailMember.is_active ? 'Aktif' : 'Nonaktif'}</p>
+                <p className="font-semibold text-gray-900 text-lg dark:text-gray-100">{detailMember.name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{detailMember.nim} • {detailMember.email}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Status: {detailMember.is_active ? 'Aktif' : 'Nonaktif'}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -328,22 +328,22 @@ export default function AnggotaPage() {
               <InfoRow label="Status Persetujuan" value={detailMember.approval_status} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-700 mb-3">Riwayat Kehadiran</p>
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Riwayat Kehadiran</p>
               {detailAttendance.isLoading ? (
                 <div className="space-y-2">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-8 animate-pulse rounded bg-gray-200" />
+                    <div key={i} className="h-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
                   ))}
                 </div>
               ) : detailAttendance.data?.length === 0 ? (
-                <p className="text-sm text-gray-500">Belum ada riwayat absensi</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada riwayat absensi</p>
               ) : (
                 <div className="space-y-2">
                   {detailAttendance.data?.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between p-2 rounded bg-gray-50">
+                    <div key={a.id} className="flex items-center justify-between p-2 rounded bg-gray-50 dark:bg-gray-800/50">
                       <div>
-                        <p className="font-medium text-gray-900">{a.attendance_date}</p>
-                        <p className="text-xs text-gray-500">{a.check_in_at}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{a.attendance_date}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{a.check_in_at}</p>
                       </div>
                       <StatusBadge.AttendanceStatusBadge status={a.status} />
                     </div>
@@ -361,7 +361,7 @@ export default function AnggotaPage() {
           <div className="space-y-4">
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama</label>
                 <Input
                   value={editData.name}
                   onChange={(e) => setEditData({...editData, name: e.target.value})}
@@ -369,7 +369,7 @@ export default function AnggotaPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fakultas</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fakultas</label>
                 <Input
                   value={editData.faculty}
                   onChange={(e) => setEditData({...editData, faculty: e.target.value})}
@@ -377,7 +377,7 @@ export default function AnggotaPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Jurusan</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jurusan</label>
                 <Input
                   value={editData.major}
                   onChange={(e) => setEditData({...editData, major: e.target.value})}

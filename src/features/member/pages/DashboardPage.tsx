@@ -30,11 +30,11 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingScreen } from '@/components/ui/Spinner';
 
 const HISTORY_STATS: { key: AttendanceStatus; label: string; className: string }[] = [
-  { key: 'HADIR', label: 'Hadir', className: 'text-green-600' },
-  { key: 'TERLAMBAT', label: 'Terlambat', className: 'text-amber-600' },
-  { key: 'IZIN', label: 'Izin', className: 'text-blue-600' },
-  { key: 'SAKIT', label: 'Sakit', className: 'text-orange-600' },
-  { key: 'ALPA', label: 'Alpa', className: 'text-red-600' },
+  { key: 'HADIR', label: 'Hadir', className: 'text-green-600 dark:text-green-400' },
+  { key: 'TERLAMBAT', label: 'Terlambat', className: 'text-amber-600 dark:text-amber-400' },
+  { key: 'IZIN', label: 'Izin', className: 'text-blue-600 dark:text-blue-400' },
+  { key: 'SAKIT', label: 'Sakit', className: 'text-orange-600 dark:text-orange-400' },
+  { key: 'ALPA', label: 'Alpa', className: 'text-red-600 dark:text-red-400' },
 ];
 
 const KKN_STATUS_TEXT: Record<string, string> = {
@@ -68,29 +68,29 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Halo, {firstName}!
         </h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           {profile?.name ?? 'Anggota KKN'} &middot; Anggota
         </p>
       </div>
 
       {isSuspended && profile && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
           <CardContent className="flex items-start gap-3 pt-5">
-            <UserX className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
+            <UserX className="mt-0.5 h-6 w-6 shrink-0 text-red-600 dark:text-red-400" />
             <div className="space-y-1">
-              <p className="font-semibold text-red-900">
+              <p className="font-semibold text-red-900 dark:text-red-300">
                 Akun Anda telah ditangguhkan
               </p>
-              <p className="text-sm text-red-800">
+              <p className="text-sm text-red-800 dark:text-red-400">
                 Hubungi admin untuk informasi lebih lanjut.
               </p>
               <button
                 type="button"
                 onClick={() => void signOut()}
-                className="mt-2 text-sm font-medium text-red-900 underline underline-offset-2"
+                className="mt-2 text-sm font-medium text-red-900 underline underline-offset-2 dark:text-red-300"
               >
                 Keluar dari akun
               </button>
@@ -103,17 +103,17 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-green-600" />
+            <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
             Status Absensi Hari Ini
           </CardTitle>
           <CardDescription>{formatKknDate(kkn.today)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {attendanceToday ? (
-            <div className="flex items-center justify-between rounded-xl bg-green-50 p-4">
+            <div className="flex items-center justify-between rounded-xl bg-green-50 p-4 dark:bg-green-900/20">
               <div>
-                <p className="font-semibold text-green-800">Sudah Hadir</p>
-                <p className="mt-1 text-sm text-green-700">
+                <p className="font-semibold text-green-800 dark:text-green-300">Sudah Hadir</p>
+                <p className="mt-1 text-sm text-green-700 dark:text-green-400">
                   Jam check-in:{' '}
                   {formatInTimeZone(
                     attendanceToday.check_in_at,
@@ -126,9 +126,9 @@ export default function DashboardPage() {
               <StatusBadge.AttendanceStatusBadge status={attendanceToday.status} />
             </div>
           ) : (
-            <div className="rounded-xl bg-gray-50 p-4 text-center">
-              <p className="font-medium text-gray-700">Belum Absen</p>
-              <p className="mt-1 text-sm text-gray-500">
+            <div className="rounded-xl bg-gray-50 p-4 text-center dark:bg-gray-800/50">
+              <p className="font-medium text-gray-700 dark:text-gray-300">Belum Absen</p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Scan QR dari layar admin untuk melakukan absensi hari ini.
               </p>
             </div>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
             Scan QR
           </Button>
           {!isKknActiveNow() && (
-            <p className="text-center text-xs text-gray-500">
+            <p className="text-center text-xs text-gray-500 dark:text-gray-400">
               {kkn.status === 'BELUM_DIMULAI'
                 ? 'Absensi belum dibuka.'
                 : 'Masa absensi KKN telah berakhir.'}
@@ -159,7 +159,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-green-600" />
+              <CalendarDays className="h-5 w-5 text-green-600 dark:text-green-400" />
               Ringkasan Riwayat
             </CardTitle>
           </CardHeader>
@@ -168,12 +168,12 @@ export default function DashboardPage() {
               {HISTORY_STATS.map((stat) => (
                 <div
                   key={stat.key}
-                  className="rounded-lg bg-gray-50 p-3 text-center"
+                  className="rounded-lg bg-gray-50 p-3 text-center dark:bg-gray-800/50"
                 >
                   <p className={`text-lg font-bold ${stat.className}`}>
                     {summary[stat.key]}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-gray-500">
+                  <p className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">
                     {stat.label}
                   </p>
                 </div>
@@ -187,20 +187,20 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Timer className="h-5 w-5 text-green-600" />
+            <Timer className="h-5 w-5 text-green-600 dark:text-green-400" />
             Info Periode KKN
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Status</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
             <span
               className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                 kkn.status === 'BERLANGSUNG'
-                  ? 'bg-green-100 text-green-700'
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                   : kkn.status === 'SELESAI'
-                    ? 'bg-gray-100 text-gray-600'
-                    : 'bg-blue-100 text-blue-700'
+                    ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
               }`}
             >
               {KKN_STATUS_TEXT[kkn.status]}
@@ -208,32 +208,32 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-gray-500">Mulai</p>
-              <p className="font-medium text-gray-900">
+              <p className="text-gray-500 dark:text-gray-400">Mulai</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {formatKknDate(kkn.startDate)}
               </p>
             </div>
             <div>
-              <p className="text-gray-500">Selesai</p>
-              <p className="font-medium text-gray-900">
+              <p className="text-gray-500 dark:text-gray-400">Selesai</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {formatKknDate(kkn.endDate)}
               </p>
             </div>
             <div>
-              <p className="text-gray-500">Durasi</p>
-              <p className="font-medium text-gray-900">
+              <p className="text-gray-500 dark:text-gray-400">Durasi</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {kkn.durationDays} hari
               </p>
             </div>
             <div>
-              <p className="text-gray-500">Hari ke-</p>
-              <p className="font-medium text-gray-900">
+              <p className="text-gray-500 dark:text-gray-400">Hari ke-</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {kkn.isWithinPeriod ? kkn.dayNumber : '-'}
               </p>
             </div>
           </div>
           <div>
-            <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
+            <div className="mb-1 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
               <span>Progress</span>
               <span>
                 {kkn.remainingDays > 0
@@ -243,7 +243,7 @@ export default function DashboardPage() {
                     : 'Belum dimulai'}
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
               <div
                 className="h-2 rounded-full bg-green-600"
                 style={{ width: `${kkn.progressPercentage}%` }}

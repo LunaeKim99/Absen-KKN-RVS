@@ -118,7 +118,7 @@ export default function LaporanPage() {
                 Dari Tanggal
               </label>
               <div className="relative">
-                <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+                <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true" />
                 <input
                   id="report-start"
                   type="date"
@@ -138,7 +138,7 @@ export default function LaporanPage() {
                 Sampai Tanggal
               </label>
               <div className="relative">
-                <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+                <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" aria-hidden="true" />
                 <input
                   id="report-end"
                   type="date"
@@ -185,42 +185,42 @@ export default function LaporanPage() {
           </CardHeader>
           <CardContent className="overflow-x-auto p-0">
             {reportData.byMember.length === 0 ? (
-              <p className="px-6 py-8 text-center text-sm text-gray-500">Tidak ada data anggota</p>
+              <p className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">Tidak ada data anggota</p>
             ) : (
               <>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">No</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Nama</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">NIM</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Hadir</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Terlambat</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Izin</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Sakit</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Alpa</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">% Kehadiran</th>
+                    <tr className="border-b bg-gray-50 dark:bg-gray-800/50">
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">No</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Nama</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">NIM</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Hadir</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Terlambat</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Izin</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Sakit</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Alpa</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">% Kehadiran</th>
                     </tr>
                   </thead>
                   <tbody>
                     {reportData.byMember.map((m, i) => (
-                      <tr key={m.id} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-3 text-gray-600">{i + 1}</td>
-                        <td className="px-4 py-3 font-medium text-gray-900">{m.name}</td>
-                        <td className="px-4 py-3 text-gray-600">{m.nim}</td>
-                        <td className="px-4 py-3 text-center text-green-700 font-medium">{m.total_hadir}</td>
-                        <td className="px-4 py-3 text-center text-amber-700 font-medium">{m.total_terlambat}</td>
-                        <td className="px-4 py-3 text-center text-blue-700 font-medium">{m.total_izin}</td>
-                        <td className="px-4 py-3 text-center text-blue-700 font-medium">{m.total_sakit}</td>
-                        <td className="px-4 py-3 text-center text-red-700 font-medium">{m.total_alpa}</td>
+                      <tr key={m.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i + 1}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{m.name}</td>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{m.nim}</td>
+                        <td className="px-4 py-3 text-center text-green-700 font-medium dark:text-green-400">{m.total_hadir}</td>
+                        <td className="px-4 py-3 text-center text-amber-700 font-medium dark:text-amber-400">{m.total_terlambat}</td>
+                        <td className="px-4 py-3 text-center text-blue-700 font-medium dark:text-blue-400">{m.total_izin}</td>
+                        <td className="px-4 py-3 text-center text-blue-700 font-medium dark:text-blue-400">{m.total_sakit}</td>
+                        <td className="px-4 py-3 text-center text-red-700 font-medium dark:text-red-400">{m.total_alpa}</td>
                         <td className="px-4 py-3 text-center">
                           <span
                             className={`font-semibold ${
                               m.attendance_percentage >= 80
-                                ? 'text-green-700'
+                                ? 'text-green-700 dark:text-green-400'
                                 : m.attendance_percentage >= 60
-                                  ? 'text-amber-700'
-                                  : 'text-red-700'
+                                  ? 'text-amber-700 dark:text-amber-400'
+                                  : 'text-red-700 dark:text-red-400'
                             }`}
                           >
                             {m.attendance_percentage}%
@@ -251,11 +251,11 @@ function SummaryCard({
   color: 'gray' | 'green' | 'amber' | 'red' | 'blue';
 }) {
   const colors = {
-    gray: 'bg-gray-50 text-gray-700 border-gray-200',
-    green: 'bg-green-50 text-green-700 border-green-200',
-    amber: 'bg-amber-50 text-amber-700 border-amber-200',
-    red: 'bg-red-50 text-red-700 border-red-200',
-    blue: 'bg-blue-50 text-blue-700 border-blue-200',
+    gray: 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-800',
+    green: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800',
+    amber: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
+    red: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800',
+    blue: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
   };
 
   return (

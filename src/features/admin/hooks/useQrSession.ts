@@ -2,12 +2,22 @@ import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
-import type { QrSession } from '@/types/database';
+import type { QrSession, ActiveQrResponse } from '@/types/database';
 
 interface QrSessionWithUsedBy extends QrSession {
   profiles?: { name: string } | null;
 }
 
+/**
+ * Fetch the currently valid active QR.
+ * - If a valid (non-expired, active) QR exists, return it.
+ * - Otherwise call `get_active_qr`, which invalidates any silently-expired
+ *   QR and atomically rotates in a fresh single-use token.
+ *
+ * This is what makes expiry trigger an automatic regenerate: the admin screen
+ * polls (fallback) + listens to realtime, and whenever neither a valid QR is
+ * found, the RPC creates one automatically.
+ */
 export function useActiveQr() {
   return useQuery<QrSessionWithUsedBy | null>({
     queryKey: ['admin', 'qr'],
@@ -15,12 +25,36 @@ export function useActiveQr() {
       const { data, error } = await supabase
         .from('qr_sessions')
         .select('*, profiles!used_by(name)')
+        .eq('is_active', true)
+        .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      return (data as QrSessionWithUsedBy) ?? null;
+      if (data) return data as QrSessionWithUsedBy;
+
+      // No valid active QR (expired or none): auto-rotate via RPC.
+      const { data: rpcData, error: rpcError } = await supabase.rpc(
+        'get_active_qr',
+      );
+      if (rpcError) throw rpcError;
+
+      const rpc = rpcData as ActiveQrResponse | null;
+      if (!rpc?.success || !rpc.qr) return null;
+
+      return {
+        id: rpc.qr.id,
+        token: rpc.qr.token,
+        is_active: true,
+        expires_at: rpc.qr.expires_at,
+        created_by: null,
+        used_by: null,
+        used_at: null,
+        created_at: new Date().toISOString(),
+        profiles: null,
+      } as QrSessionWithUsedBy;
     },
+    // Polling acts as a fallback when realtime is flaky/dropped.
     refetchInterval: 3000,
     staleTime: 1000,
   });
@@ -37,7 +71,11 @@ export function useGenerateQr() {
         p_admin_id: adminId,
       });
       if (error) throw error;
-      return data;
+      const result = data as ActiveQrResponse | null;
+      if (!result?.success) {
+        throw new Error(result?.error ?? 'Gagal membuat QR baru');
+      }
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'qr'] });

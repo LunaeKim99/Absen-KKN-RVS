@@ -115,7 +115,7 @@ export default function KalenderPage() {
               {/* Weekday headers (desktop only) */}
               <div className="mb-3 hidden lg:grid grid-cols-7 gap-2">
                 {WEEKDAY_NAMES.map((d) => (
-                  <div key={d} className="text-center text-xs font-medium text-gray-500">
+                  <div key={d} className="text-center text-xs font-medium text-gray-500 dark:text-gray-400">
                     {d}
                   </div>
                 ))}
@@ -167,25 +167,25 @@ export default function KalenderPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">No</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Nama</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">NIM</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Jam</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                    <tr className="border-b bg-gray-50 dark:bg-gray-800/50">
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">No</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Nama</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">NIM</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Jam</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedAttendances.map((a, i) => (
-                      <tr key={a.id} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-3 text-gray-600">{i + 1}</td>
-                        <td className="px-4 py-3 font-medium text-gray-900">
+                      <tr key={a.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i + 1}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
                           {a.profiles?.name ?? '-'}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                           {a.profiles?.nim ?? '-'}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                           {formatTimeWib(a.check_in_at)} WIB
                         </td>
                         <td className="px-4 py-3">
@@ -211,20 +211,20 @@ export default function KalenderPage() {
         {selectedDate && (
           <div className="space-y-3 max-h-[60vh] overflow-y-auto">
             {selectedAttendances.length === 0 ? (
-              <p className="py-4 text-center text-sm text-gray-500">
+              <p className="py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                 Belum ada absensi untuk tanggal ini
               </p>
             ) : (
               selectedAttendances.map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                  className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       {a.profiles?.name ?? '-'}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {a.profiles?.nim ?? '-'} · {formatTimeWib(a.check_in_at)} WIB
                     </p>
                   </div>

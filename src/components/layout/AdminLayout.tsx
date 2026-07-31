@@ -11,8 +11,11 @@ import {
   Menu,
   LogOut,
   ShieldCheck,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/Button';
 
 interface NavItem {
@@ -34,6 +37,7 @@ const navItems: NavItem[] = [
 export function AdminLayout({ children }: { children?: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -162,6 +166,19 @@ export function AdminLayout({ children }: { children?: ReactNode }) {
             <span className="hidden truncate text-sm text-gray-600 sm:inline">
               {adminName}
             </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="hidden sm:flex"
+              aria-label={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
             <Button
               variant="ghost"
               size="sm"

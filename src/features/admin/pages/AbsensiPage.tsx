@@ -184,21 +184,21 @@ export default function AbsensiPage() {
         <CardContent className="overflow-x-auto p-0">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-gray-50">
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">No</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Nama</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">NIM</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Tanggal</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Jam</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Catatan</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-700">Aksi</th>
+              <tr className="border-b bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">No</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Nama</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">NIM</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Tanggal</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Jam</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Status</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Catatan</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <tr key={i} className="border-b">
+                  <tr key={i} className="border-b dark:border-gray-800">
                     {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <Skeleton className="h-4 w-20" />
@@ -218,16 +218,16 @@ export default function AbsensiPage() {
                 </tr>
               ) : (
                 rows.map((a, i) => (
-                  <tr key={a.id} className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-600">{i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-gray-900">{a.profiles?.name ?? '-'}</td>
-                    <td className="px-4 py-3 text-gray-600">{a.profiles?.nim ?? '-'}</td>
-                    <td className="px-4 py-3 text-gray-600">{formatDateOnly(a.attendance_date)}</td>
-                    <td className="px-4 py-3 text-gray-600">{formatTimeWib(a.check_in_at)} WIB</td>
+                  <tr key={a.id} className="border-b hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{i + 1}</td>
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{a.profiles?.name ?? '-'}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{a.profiles?.nim ?? '-'}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{formatDateOnly(a.attendance_date)}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{formatTimeWib(a.check_in_at)} WIB</td>
                     <td className="px-4 py-3">
                       <StatusBadge.AttendanceStatusBadge status={a.status} />
                     </td>
-                    <td className="max-w-[180px] truncate px-4 py-3 text-gray-600" title={a.notes ?? ''}>
+                    <td className="max-w-[180px] truncate px-4 py-3 text-gray-600 dark:text-gray-400" title={a.notes ?? ''}>
                       {a.notes ?? '-'}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -273,27 +273,27 @@ export default function AbsensiPage() {
               <CardContent className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-semibold text-gray-900">{a.profiles?.name ?? '-'}</p>
-                    <p className="text-sm text-gray-500">{a.profiles?.nim ?? '-'}</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">{a.profiles?.name ?? '-'}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{a.profiles?.nim ?? '-'}</p>
                   </div>
                   <StatusBadge.AttendanceStatusBadge status={a.status} />
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <p className="text-xs text-gray-400">No</p>
-                    <p className="text-gray-700">{i + 1}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">No</p>
+                    <p className="text-gray-700 dark:text-gray-300">{i + 1}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Tanggal</p>
-                    <p className="text-gray-700">{formatDateOnly(a.attendance_date)}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Tanggal</p>
+                    <p className="text-gray-700 dark:text-gray-300">{formatDateOnly(a.attendance_date)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Jam</p>
-                    <p className="text-gray-700">{formatTimeWib(a.check_in_at)} WIB</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Jam</p>
+                    <p className="text-gray-700 dark:text-gray-300">{formatTimeWib(a.check_in_at)} WIB</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400">Catatan</p>
-                    <p className="text-gray-700">{a.notes ?? '-'}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Catatan</p>
+                    <p className="text-gray-700 dark:text-gray-300">{a.notes ?? '-'}</p>
                   </div>
                 </div>
                 <Button
@@ -320,8 +320,8 @@ export default function AbsensiPage() {
         {editRecord && (
           <div className="space-y-4">
             <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-              <p className="font-medium text-gray-900">{editRecord.profiles?.name ?? '-'}</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-medium text-gray-900 dark:text-gray-100">{editRecord.profiles?.name ?? '-'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {editRecord.profiles?.nim ?? '-'} &middot; {formatDateOnly(editRecord.attendance_date)} &middot;{' '}
                 {formatTimeWib(editRecord.check_in_at)} WIB
               </p>

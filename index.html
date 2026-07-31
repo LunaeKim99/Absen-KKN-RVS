@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -9,6 +9,19 @@
       content="Sistem absensi KKN berbasis QR code untuk mahasiswa peserta KKN. Scan QR harian, lihat riwayat, dan kelola kehadiran."
     />
     <title>Absensi KKN</title>
+    <script>
+      // Prevent flash of wrong theme (FOUC) — run before paint
+      (function () {
+        try {
+          var stored = localStorage.getItem('absensi-kkn-theme');
+          var theme = stored === 'dark' || stored === 'light' ? stored :
+            window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

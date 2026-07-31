@@ -19,7 +19,7 @@ export function mapScanError(rpcError?: string): string {
     case 'Anda sudah melakukan absensi hari ini':
       return 'Anda sudah absen hari ini.';
     case 'QR tidak valid atau sudah kedaluwarsa':
-      return 'QR kedaluwarsa atau sudah digunakan. Minta admin untuk generate QR baru.';
+      return 'QR sudah kedaluwarsa atau sudah dipakai orang lain. Silakan scan kembali QR terbaru di layar admin.';
     case 'Periode KKN tidak aktif':
       return getKknStatus() === 'SELESAI'
         ? 'Masa absensi KKN telah berakhir.'

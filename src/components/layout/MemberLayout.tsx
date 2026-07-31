@@ -6,8 +6,11 @@ import {
   History,
   User,
   LogOut,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/Button';
 
 const navItems = [
@@ -19,6 +22,7 @@ const navItems = [
 
 export function MemberLayout({ children }: { children?: ReactNode }) {
   const { profile, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -37,6 +41,15 @@ export function MemberLayout({ children }: { children?: ReactNode }) {
           <h1 className="text-lg font-semibold">Absensi KKN</h1>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm sm:inline">Halo, {firstName}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="text-white hover:bg-green-700 dark:text-gray-100"
+              aria-label={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
             <Button
               variant="ghost"
               size="sm"
