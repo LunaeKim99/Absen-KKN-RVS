@@ -2,6 +2,10 @@
 -- Absensi KKN - Database Schema for Supabase
 -- =============================================
 
+-- 0. REQUIRED EXTENSIONS
+-- gen_random_bytes() (used by QR token generation) requires pgcrypto.
+create extension if not exists pgcrypto;
+
 -- 1. PROFILES TABLE
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
