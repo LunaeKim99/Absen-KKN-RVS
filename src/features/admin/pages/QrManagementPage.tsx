@@ -8,7 +8,7 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
-import { useActiveQr, useGenerateQr, useQrRealtime, useQrCountdown } from '@/features/admin/hooks/useQrSession';
+import { useActiveQR } from '@/features/admin/hooks/useActiveQR';
 import { generateQrCanvas } from '@/lib/qrGenerator';
 import { isKknActiveNow } from '@/lib/kkn-utils';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -20,14 +20,22 @@ import { useToast } from '@/components/ui/Toast';
 
 export default function QrManagementPage() {
   const { toast } = useToast();
-  const { data: qr, isLoading, refetch } = useActiveQr();
-  const generateQr = useGenerateQr();
-  useQrRealtime();
-  const countdown = useQrCountdown(qr?.expires_at);
+  const { qr, isLoading, isGenerating, countdown, formatCountdown, generateQr, toast: hookToast } = useActiveQR();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
 
   const isKknActive = isKknActiveNow();
+
+  // Show toast from hook
+  useEffect(() => {
+    if (hookToast) {
+      if (hookToast.type === 'success') {
+        toast.success(hookToast.message);
+      } else {
+        toast.error(hookToast.message);
+      }
+    }
+  }, [hookToast, toast]);
 
   useEffect(() => {
     if (canvasRef.current && qr?.token) {
@@ -35,21 +43,13 @@ export default function QrManagementPage() {
     }
   }, [qr?.token]);
 
-  // Auto-regenerate: when countdown reaches 0, invalidate so useActiveQr
-  // calls get_active_qr which will rotate expired tokens automatically.
-  useEffect(() => {
-    if (!isLoading && qr && countdown <= 0) {
-      refetch();
-    }
-  }, [countdown, isLoading, qr, refetch]);
-
   const handleGenerate = async () => {
     if (!isKknActive) return;
     try {
-      await generateQr.mutateAsync();
-      toast.success('QR baru berhasil dibuat');
+      await generateQr();
+      // Toast is handled by the hook via hookToast
     } catch {
-      toast.error('Gagal membuat QR baru');
+      // Error toast is handled by the hook via hookToast
     }
   };
 
@@ -62,12 +62,6 @@ export default function QrManagementPage() {
     } catch {
       toast.error('Gagal menyalin token');
     }
-  };
-
-  const formatCountdown = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -166,10 +160,10 @@ export default function QrManagementPage() {
                 variant="primary"
                 size="lg"
                 onClick={handleGenerate}
-                disabled={generateQr.isPending || !isKknActive}
+                disabled={isGenerating || !isKknActive}
                 className="w-full"
               >
-                {generateQr.isPending ? (
+                {isGenerating ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
                     Membuat QR...
@@ -196,10 +190,10 @@ export default function QrManagementPage() {
               variant="primary"
               size="lg"
               onClick={handleGenerate}
-              disabled={generateQr.isPending || !isKknActive}
+              disabled={isGenerating || !isKknActive}
               className="w-full"
             >
-              {generateQr.isPending ? (
+              {isGenerating ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
                   Membuat QR...

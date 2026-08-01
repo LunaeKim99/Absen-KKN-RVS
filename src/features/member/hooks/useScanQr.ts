@@ -16,6 +16,8 @@ export function mapScanError(rpcError?: string): string {
   switch (rpcError) {
     case 'Akun Anda belum disetujui atau tidak aktif':
       return 'Akun belum disetujui admin. Hubungi admin untuk informasi lebih lanjut.';
+    case 'Akun Anda tidak aktif':
+      return 'Akun Anda tidak aktif. Hubungi admin untuk informasi lebih lanjut.';
     case 'Anda sudah melakukan absensi hari ini':
       return 'Anda sudah absen hari ini.';
     case 'QR tidak valid atau sudah kedaluwarsa':
@@ -41,8 +43,19 @@ export function useScanQr() {
         p_token: token,
         p_device_info: navigator.userAgent,
       });
+
+      console.log('Attendance response:', data);
+      console.log('Attendance error:', error);
+
       if (error) throw error;
-      return data as QrScanResult;
+
+      const result = data as QrScanResult;
+
+      if (result?.success === false) {
+        throw new Error(result.error ?? 'Gagal memproses absensi');
+      }
+
+      return result;
     },
     onSuccess: (result) => {
       if (result?.success) {
@@ -54,6 +67,7 @@ export function useScanQr() {
 
   return {
     scan: mutation.mutate,
+    scanAsync: mutation.mutateAsync,
     isPending: mutation.isPending,
     result: mutation.data,
     error: mutation.error,

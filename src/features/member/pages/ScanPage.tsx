@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Html5Qrcode } from 'html5-qrcode';
 import { CheckCircle2, XCircle, CameraOff, ArrowLeft, RefreshCw } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useAuth } from '@/hooks/useAuth';
-import { useScanQr, mapScanError } from '@/features/member/hooks/useScanQr';
+import { useQRScanner } from '@/features/member/hooks/useQRScanner';
 import { isKknActiveNow, getKknStatus } from '@/lib/kkn-utils';
 import { KKN_CONFIG } from '@/config/kkn';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -13,122 +12,27 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { LoadingScreen } from '@/components/ui/Spinner';
-import type { QrScanResult } from '@/types/database';
-
-type ScanPhase =
-  | 'idle'
-  | 'scanning'
-  | 'processing'
-  | 'success'
-  | 'error'
-  | 'camera-error';
 
 export default function ScanPage() {
   const navigate = useNavigate();
   const { user, profile, isLoading: authLoading } = useAuth();
-  const { scan, isPending } = useScanQr();
 
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const busyRef = useRef(false);
-  const [phase, setPhase] = useState<ScanPhase>('idle');
-  const [scanResult, setScanResult] = useState<QrScanResult | null>(null);
-  const [scanError, setScanError] = useState<string | null>(null);
-
-  const stopScanner = useCallback(async () => {
-    const s = scannerRef.current;
-    if (!s) return;
-    try {
-      await s.stop();
-      s.clear();
-    } catch {
-      /* already stopped or element removed */
-    } finally {
-      if (scannerRef.current === s) {
-        scannerRef.current = null;
-      }
-    }
-  }, []);
-
-  const startScanner = useCallback(() => {
-    const el = document.getElementById('qr-reader');
-    if (!el) {
-      setScanError('Gagal memuat area pemindai. Silakan refresh halaman.');
-      setPhase('camera-error');
-      return;
-    }
-    el.replaceChildren();
-    const scanner = new Html5Qrcode('qr-reader', false);
-    scannerRef.current = scanner;
-    setPhase('scanning');
-    scanner
-      .start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 220, height: 220 } },
-        (text) => onScanSuccessRef.current(text),
-        () => {
-          /* per-frame decode errors intentionally ignored */
-        },
-      )
-      .catch(() => {
-        if (scannerRef.current !== scanner) return;
-        setScanError(
-          'Tidak dapat mengakses kamera. Pastikan izin kamera diizinkan di pengaturan browser Anda, lalu coba lagi.',
-        );
-        setPhase('camera-error');
-      });
-  }, []);
-
-  const handleScanSuccess = useCallback(
-    (text: string) => {
-      if (busyRef.current || !user) return;
-      busyRef.current = true;
-      setPhase('processing');
-      scan(
-        { userId: user.id, token: text.trim() },
-        {
-           onSuccess: (result) => {
-            if (result?.success) {
-              setScanResult(result);
-              setPhase('success');
-              void stopScanner();
-            } else {
-              setScanError(mapScanError(result?.error));
-              setPhase('error');
-              scannerRef.current?.pause(true);
-              setTimeout(() => {
-                busyRef.current = false;
-                scannerRef.current?.resume();
-              }, 1500);
-            }
-          },
-          onError: () => {
-            setScanError('Terjadi kesalahan saat memproses absensi. Silakan coba lagi.');
-            setPhase('error');
-            scannerRef.current?.pause(true);
-            setTimeout(() => {
-              busyRef.current = false;
-              scannerRef.current?.resume();
-            }, 1500);
-          },
-        },
-      );
+  const {
+    phase,
+    scanResult,
+    scanError,
+    startScanner,
+    stopScanner,
+    handleRetry,
+  } = useQRScanner({
+    userId: user?.id ?? '',
+    onSuccess: (result) => {
+      console.log('Scan success:', result);
     },
-    [scan, stopScanner, user],
-  );
-
-  const onScanSuccessRef = useRef<(text: string) => void>(() => {});
-  useEffect(() => {
-    // Required: keeps the html5-qrcode callback up-to-date with latest handler
-    // eslint-disable-next-line react-hooks/immutability
-    onScanSuccessRef.current = handleScanSuccess;
-  }, [handleScanSuccess]);
-
-  const handleRetry = useCallback(() => {
-    busyRef.current = false;
-    setScanError(null);
-    setScanResult(null);
-    void stopScanner().then(() => startScanner());
-  }, [startScanner, stopScanner]);
+    onError: (error) => {
+      console.log('Scan error:', error);
+    },
+  });
 
   // --- mount scanner on active user ---
   useEffect(() => {
@@ -150,7 +54,7 @@ export default function ScanPage() {
 
   if (authLoading) return <LoadingScreen />;
 
-  const scanInProgress = phase === 'processing' && isPending;
+  const scanInProgress = phase === 'processing';
 
   return (
     <div className="w-full max-w-md space-y-4 pb-24 md:max-w-lg">
