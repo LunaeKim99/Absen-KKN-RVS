@@ -109,10 +109,10 @@ export default function QrManagementPage() {
 
             {/* Countdown Timer */}
             <div className="flex items-center justify-center gap-3">
-              <Clock className="h-6 w-6 text-green-600" aria-hidden="true" />
+              <Clock className={`h-6 w-6 ${countdown <= 5 ? 'text-red-600' : 'text-green-600'}`} aria-hidden="true" />
               <div className="text-left">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Berlaku hingga</p>
-                <p className="text-2xl font-mono font-bold text-gray-900 tabular-nums dark:text-gray-100">
+                <p className={`text-2xl font-mono font-bold tabular-nums ${countdown <= 5 ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
                   {formatCountdown(countdown)}
                 </p>
               </div>
@@ -240,7 +240,7 @@ export default function QrManagementPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Auto Refresh</p>
-                <p className="font-semibold text-gray-900 dark:text-gray-100">Setiap 3 detik</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">Setiap 2 detik</p>
               </div>
             </div>
           </CardContent>

@@ -86,7 +86,7 @@ export function useActiveQR() {
       } as QrSessionWithUsedBy;
     },
     // Polling acts as a fallback when realtime is flaky/dropped.
-    refetchInterval: 3000,
+    refetchInterval: 2000,
     staleTime: 1000,
   });
 
@@ -114,8 +114,8 @@ export function useActiveQR() {
       const result = data as AdminQrResponse | null;
 
       // Parse structured response from RPC
-      if (!result?.success) {
-        const errorMessage = result?.error ?? 'Gagal mengenerate QR';
+      if (!result?.success || !result.qr) {
+        const errorMessage = result?.error ?? 'Gagal membuat QR baru';
         console.error('Generate QR RPC failed:', errorMessage);
         throw new Error(errorMessage);
       }

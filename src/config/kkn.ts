@@ -3,7 +3,7 @@ export const KKN_CONFIG = {
   END_DATE: '2026-09-06' as const,
   DURATION_DAYS: 42,
   TIMEZONE: 'Asia/Jakarta' as const,
-  QR_TOKEN_EXPIRES_SECONDS: 60,
+  QR_TOKEN_EXPIRES_SECONDS: 15,
 } as const;
 
 export type KknStatus = 'BELUM_DIMULAI' | 'BERLANGSUNG' | 'SELESAI';

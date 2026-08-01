@@ -250,7 +250,7 @@ begin
   v_new_qr_id := gen_random_uuid();
   
   insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
-  values (v_new_qr_id, v_new_token, true, now() + interval '60 seconds', null);
+  values (v_new_qr_id, v_new_token, true, now() + interval '15 seconds', null);
 
   -- 8. Log the attendance
   insert into public.activity_logs (user_id, action, details)
@@ -315,17 +315,17 @@ begin
       v_new_token := encode(gen_random_bytes(32), 'hex');
       v_new_qr_id := gen_random_uuid();
       
-      insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
-      values (v_new_qr_id, v_new_token, true, now() + interval '60 seconds', null);
-      
-      return json_build_object(
-        'success', true,
-        'qr', json_build_object(
-          'id', v_new_qr_id,
-          'token', v_new_token,
-          'expires_at', now() + interval '60 seconds'
-        )
-      );
+       insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
+       values (v_new_qr_id, v_new_token, true, now() + interval '15 seconds', null);
+       
+       return json_build_object(
+         'success', true,
+         'qr', json_build_object(
+           'id', v_new_qr_id,
+           'token', v_new_token,
+           'expires_at', now() + interval '15 seconds'
+         )
+       );
     end;
   end if;
 end;
@@ -367,7 +367,7 @@ begin
   v_new_qr_id := gen_random_uuid();
   
   insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
-  values (v_new_qr_id, v_new_token, true, now() + interval '60 seconds', p_admin_id);
+  values (v_new_qr_id, v_new_token, true, now() + interval '15 seconds', p_admin_id);
   
   -- Log the action
   insert into public.activity_logs (user_id, action, details)
@@ -378,7 +378,7 @@ begin
     'qr', json_build_object(
       'id', v_new_qr_id,
       'token', v_new_token,
-      'expires_at', now() + interval '60 seconds'
+      'expires_at', now() + interval '15 seconds'
     )
   );
 end;

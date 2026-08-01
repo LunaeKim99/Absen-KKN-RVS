@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { supabase } from '@/lib/supabase';
+import { mapScanError } from '@/features/member/hooks/useScanQr';
 import type { QrScanResult } from '@/types/database';
 
 type ScanPhase = 'idle' | 'scanning' | 'processing' | 'success' | 'error' | 'camera-error';
@@ -49,13 +50,9 @@ export function useQRScanner({
   }, []);
 
   const extractToken = useCallback((decodedText: string): string => {
-    console.log('Scanned:', decodedText);
     if (decodedText.includes('/scan/')) {
-      const token = decodedText.split('/scan/')[1];
-      console.log('Extracted token from URL:', token);
-      return token;
+      return decodedText.split('/scan/')[1];
     }
-    console.log('Using raw token:', decodedText);
     return decodedText;
   }, []);
 
@@ -76,7 +73,11 @@ export function useQRScanner({
 
       const result = data as QrScanResult;
 
-      if (result?.success === false) {
+      if (!result) {
+        throw new Error('Respons server kosong');
+      }
+
+      if (result.success !== true) {
         throw new Error(result.error ?? 'Gagal memproses absensi');
       }
 
@@ -84,44 +85,6 @@ export function useQRScanner({
     },
     [userId],
   );
-
-  const handleScanSuccess = useCallback(
-    (decodedText: string) => {
-      if (scanningRef.current || !userId) {
-        console.log('Scan ignored - already scanning or no user');
-        return;
-      }
-      scanningRef.current = true;
-      setPhase('processing');
-
-      const token = extractToken(decodedText.trim());
-
-      processAttendance(token)
-        .then((result) => {
-          console.log('Scan success:', result);
-          setScanResult(result);
-          setPhase('success');
-          stopScanner();
-          onSuccess?.(result);
-        })
-        .catch((err) => {
-          console.error('Scan error:', err);
-          const message = err.message ?? 'Terjadi kesalahan saat memproses absensi';
-          setScanError(message);
-          setPhase('error');
-          onError?.(message);
-          setTimeout(() => {
-            scanningRef.current = false;
-          }, SCAN_DEBOUNCE_MS);
-        });
-    },
-    [userId, extractToken, processAttendance, stopScanner, onSuccess, onError],
-  );
-
-  const onScanSuccessRef = useRef<(text: string) => void>(() => {});
-  useEffect(() => {
-    onScanSuccessRef.current = handleScanSuccess;
-  }, [handleScanSuccess]);
 
   const startScanner = useCallback(() => {
     const el = document.getElementById('qr-reader');
@@ -151,6 +114,58 @@ export function useQRScanner({
         setPhase('camera-error');
       });
   }, []);
+
+  const handleScanSuccess = useCallback(
+    async (decodedText: string) => {
+      if (scanningRef.current || !userId) return;
+
+      scanningRef.current = true;
+      setPhase('processing');
+
+      await stopScanner();
+
+      console.log('Scanned URL:', decodedText);
+
+      const token = extractToken(decodedText.trim());
+      console.log('Extracted token:', token);
+
+      try {
+        const result = await processAttendance(token);
+
+        setScanResult(result);
+        setPhase('success');
+        onSuccess?.(result);
+      } catch (err) {
+        const message = mapScanError((err as Error).message);
+
+        setScanError(message);
+        setPhase('error');
+        onError?.(message);
+
+        scanningRef.current = false;
+
+        setTimeout(() => {
+          startScanner();
+        }, SCAN_DEBOUNCE_MS);
+      }
+    },
+    [
+      userId,
+      extractToken,
+      processAttendance,
+      stopScanner,
+      startScanner,
+      onSuccess,
+      onError,
+    ],
+  );
+
+  const onScanSuccessRef = useRef<(text: string) => void>(() => {});
+  useEffect(() => {
+    // Required: keeps the html5-qrcode callback up-to-date with latest handler
+    // eslint-disable-next-line react-hooks/immutability
+    onScanSuccessRef.current = handleScanSuccess;
+  }, [handleScanSuccess]);
 
   const handleRetry = useCallback(() => {
     scanningRef.current = false;
