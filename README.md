@@ -19,7 +19,8 @@ Aplikasi web absensi untuk mahasiswa KKN (Kuliah Kerja Nyata) yang dibangun deng
 ## Fitur Utama
 
 - **Absensi QR Code** — Mahasiswa scan QR untuk absen; QR **single-use**, token lama langsung dinonaktifkan setelah dipakai, token baru digenerate otomatis.
-- **Rotasi QR Otomatis** — QR expired (60 detik) otomatis diganti tanpa intervensi admin; race condition dicegah dengan advisory lock + partial unique index.
+- **Rotasi QR Otomatis** — QR expired (**15 detik**) otomatis diganti tanpa intervensi admin; race condition dicegah dengan advisory lock + partial unique index.
+- **Scanner Aman** — Scanner berhenti **sebelum** request absensi dikirim (mencegah double-scan), debounce 1,5 detik, auto-restart hanya saat gagal.
 - **Status Kehadiran** — HADIR, TERLAMBAT, IZIN, SAKIT, ALPA dengan validasi sisi server.
 - **Manajemen Pengguna** — Admin bisa approve/reject/suspend akun mahasiswa; pendaftaran via Supabase Auth.
 - **Dashboard Admin** — Statistik kehadiran harian, daftar anggota, log aktivitas.
@@ -72,6 +73,7 @@ cp .env.example .env
 |----------|-----------|
 | `VITE_SUPABASE_URL` | URL project Supabase (mis. `https://xxxxx.supabase.co`) |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Anon/public key Supabase (safe untuk frontend) |
+| `VITE_APP_URL` | URL dasar aplikasi (mis. `http://localhost:3000` atau `https://absen-kkn-rvs.vercel.app`) — digunakan untuk generate QR URL scan |
 | `VITE_APP_NAME` | Nama aplikasi (default: `Absensi KKN`) |
 | `VITE_APP_ENV` | Environment: `development` \| `production` |
 
@@ -90,11 +92,13 @@ cp .env.example .env
    supabase/migrations/20260731104125_fix_rpc_security_definer.sql
    supabase/migrations/20260731105218_auto_approve_signup_and_remove_attendance_gate.sql
    supabase/migrations/20260731120000_fix_qr_single_use_rotation_and_races.sql
-   supabase/migrations/20260731121000_activate_pgcrypto_and_harden_qr_rpcs.sql   ← TERAKHIR
+   supabase/migrations/20260731121000_activate_pgcrypto_and_harden_qr_rpcs.sql
+   supabase/migrations/20260801120000_reduce_qr_expiry_to_15_seconds.sql ← TERAKHIR
    ```
-   - **`pgcrypto`** diaktifkan di migration terakhir → `gen_random_bytes()` tersedia.
+   - **`pgcrypto`** diaktifkan di migration terakhir → `extensions.gen_random_bytes()` tersedia.
    - **Partial unique index** `idx_qr_sessions_one_active` → hanya ada 1 QR aktif di database.
    - **Advisory lock** di semua RPC → mencegah race condition.
+   - **Migration 20260801120000** → mengubah expiry QR dari 60s → **15 detik** + schema-qualified `extensions.gen_random_bytes(32)` / `extensions.gen_random_uuid()`.
    - **RPC function** (error-safe): `process_attendance`, `get_active_qr`, `admin_generate_qr`, `admin_approve_user`, `admin_reject_user`, `admin_suspend_user`, `admin_toggle_user_active`, `admin_get_today_stats`.
 4. Di **Authentication → Providers**, aktifkan **Email/Password**.
 5. Buat akun admin dengan menjalankan `supabase/seed.sql` (ganti email dengan email admin Anda).
@@ -134,6 +138,7 @@ npm run preview
 4. Set **Environment Variables** dari file `.env`:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_APP_URL` — URL production (mis. `https://absen-kkn-rvs.vercel.app`)
    - `VITE_APP_NAME`
    - `VITE_APP_ENV` = `production`
 5. Deploy. Vercel akan menjalankan `npm run build` dan menyajikan folder `dist/`.
@@ -153,7 +158,8 @@ absensi-kkn/
 │       ├── 20260731104125_fix_rpc_security_definer.sql
 │       ├── 20260731105218_auto_approve_signup_and_remove_attendance_gate.sql
 │       ├── 20260731120000_fix_qr_single_use_rotation_and_races.sql
-│       └── 20260731121000_activate_pgcrypto_and_harden_qr_rpcs.sql
+│       ├── 20260731121000_activate_pgcrypto_and_harden_qr_rpcs.sql
+│       └── 20260801120000_reduce_qr_expiry_to_15_seconds.sql
 ├── src/
 │   ├── components/         # Shared UI + layout (Button, Input, Card, Modal, layouts)
 │   │   ├── layout/         # AdminLayout, MemberLayout, AuthLayout, ProtectedRoute
@@ -164,10 +170,10 @@ absensi-kkn/
 │   │   ├── admin/          # hooks/ + pages/ (dashboard, anggota, QR, absensi, laporan, kalender)
 │   │   ├── auth/           # Login, register, session handling
 │   │   └── member/         # Dashboard, ScanPage, Riwayat, Profil
-│   ├── hooks/              # Custom hooks (useAuth, useTheme, dll)
+│   ├── hooks/              # Custom hooks (useAuth, useTheme, useQRScanner, useActiveQR, useGenerateQr, dll)
 │   ├── lib/
 │   │   ├── kkn-utils.ts    # KKN date utilities (getKknDayNumber, isKknActiveNow, dll)
-│   │   ├── qrGenerator.ts  # qrcode wrapper (toDataURL / toCanvas)
+│   │   ├── qrGenerator.ts  # qrcode wrapper (toDataURL / toCanvas), encode full scan URL + token
 │   │   ├── supabase.ts     # Supabase client (browser)
 │   │   ├── utils.ts        # General helpers (cn/clsx, formatters)
 │   │   └── exportUtils.ts  # Excel export helper
@@ -191,24 +197,28 @@ absensi-kkn/
 
 ## Alur QR Absensi (Single-Use + Auto-Rotate)
 
-1. **Admin buka `/admin/qr`** → `useActiveQr` query `qr_sessions` yang `is_active = true` dan belum expired.
+1. **Admin buka `/admin/qr`** → `useActiveQR` query `qr_sessions` yang `is_active = true` dan belum expired.
    - Jika tidak ada QR valid → panggil RPC `get_active_qr` → membuat token baru otomatis.
-   - Polling 3 detik + realtime channel sebagai fallback sync.
-2. **QR tampil** di canvas dengan countdown 60 detik.
-3. **Mahasiswa scan** → `process_attendance(p_user_id, p_token, p_device_info)`:
+   - Polling 2 detik + realtime channel sebagai fallback sync.
+2. **QR tampil** di canvas dengan countdown **15 detik**.
+3. **Mahasiswa scan** → `useQRScanner` → async handling:
+   - **Stop scanner SEBELUM** panggilan RPC → mencegah double-scan.
+   - **Single-flight guard** (`scanningRef`) → hanya satu request attendance per scan.
    - Validasi anggota aktif + belum absen hari ini (WIB).
    - **Lock token** (`SELECT ... FOR UPDATE`) → single-use enforcement.
    - Validasi periode KKN aktif.
    - Set `is_active = false`, isi `used_by`, `used_at`.
    - Simpan `attendances`.
-   - **Generate QR baru** (`gen_random_bytes(32)`) langsung di transaksi yang sama.
-4. **Admin polling berikutnya** (≤3 detik) → mendapatkan token QR baru → canvas otomatis refresh.
-5. **QR expired** (60 detik tanpa scan) → `get_active_qr` menginvalidate + bikin baru otomatis.
+   - **Generate QR baru** (`extensions.gen_random_bytes(32)`) langsung di transaksi yang sama.
+4. **Admin polling berikutnya** (≤2 detik) → mendapatkan token QR baru → canvas otomatis refresh.
+5. **QR expired** (15 detik tanpa scan) → `rotateQrOnce` → langsung pakai token baru (`setQueryData`) tanpa invalidasi penuh.
 
 ### Anti Race Condition
 - `pg_advisory_xact_lock(hashtext('absensi_kkn_qr_active_lock'))` di semua RPC QR → hanya satu rotasi/proses dalam satu waktu.
 - Partial unique index `idx_qr_sessions_one_active` → hanya satu QR aktif di DB.
 - Dua mahasiswa scan bersamaan → satu sukses, satu dapat `"QR tidak valid atau sudah kedaluwarsa"`.
+- **Scanner guard** (`scanningRef`) → mencegah concurrent scans di sisi frontend.
+- **Generate guard** (`generatingRef`) → mencegah concurrent manual generates; tombol disabled & toast didedupe pakai `id`.
 
 ---
 
@@ -222,7 +232,7 @@ absensi-kkn/
   - `kkn_periods`: Bisa dibaca semua authenticated user.
 - **Service Role Key** — Tidak pernah digunakan di frontend. Operasi sensitif (rotasi QR, approve user, stats) dilakukan via **PostgreSQL RPC** (`security definer`) di sisi database.
 - **Validasi Sisi Server** — Semua mutasi lewat RPC: cek role, approval_status, periode KKN aktif, QR valid & belum expired, duplicate attendance prevention.
-- **Token QR Rotasi** — Token baru digenerate otomatis (`gen_random_bytes(32)` via `pgcrypto`) setiap absensi sukses; token lama dinonaktifkan; partial unique index menjamin single-active.
+- **Token QR Rotasi** — Token baru digenerate otomatis (`extensions.gen_random_bytes(32)` via `pgcrypto`) setiap absensi sukses; token lama dinonaktifkan; partial unique index menjamin single-active.
 - **Race Condition** — Advisory lock (`pg_advisory_xact_lock`) di `process_attendance`, `get_active_qr`, `admin_generate_qr`.
 - **Error-safe RPC** — Semua RPC menangkap exception dan mengembalikan `{ success: false, error }` alih-alih crash.
 - **Headers Keamanan** — Dikonfigurasi via `vercel.json` untuk production.
@@ -252,7 +262,16 @@ Error `POST .../rpc/get_active_qr 404` atau `No API key found in request` berart
    ```sql
    notify pgrst, 'reload schema';
    ```
-5. Redeploy Vercel (env vars di-bundle saat build — set `VITE_SUPABASE_URL` dan `VITE_SUPABASE_PUBLISHABLE_KEY` lalu redeploy).
+5. Redeploy Vercel (env vars di-bundle saat build — set `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, **`VITE_APP_URL`** lalu redeploy).
+
+### QR expired terlalu cepat / tidak auto-regenerate
+
+QR expiry **15 detik** — pastikan `VITE_APP_URL` benar & polling 2 detik jalan.
+
+1. Cek `.env` ada `VITE_APP_URL=https://domain-anda.com` (tanpa trailing slash).
+2. Cek console network: RPC `get_active_qr` dipanggil tiap 2 detik (polling).
+3. Pastikan migrasi `20260801120000_reduce_qr_expiry_to_15_seconds.sql` sudah ter-apply di Supabase.
+4. Jika QR tidak update: hard refresh browser, atau cek realtime channel (`public:qr_sessions`) di console.
 
 ### `gen_random_bytes` error (SQLSTATE 42883)
 
