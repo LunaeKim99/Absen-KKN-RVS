@@ -64,6 +64,9 @@ export function useActiveQr() {
     staleTime: 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
+    // Force a new top-level object reference each poll so components always
+    // re-render when the token changes (guards against structural-sharing caching).
+    select: (data) => (data ? { ...data, profiles: data.profiles ? { ...data.profiles } : null } : data),
   });
 }
 

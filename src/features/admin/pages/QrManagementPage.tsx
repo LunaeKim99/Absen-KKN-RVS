@@ -28,10 +28,14 @@ export default function QrManagementPage() {
   const isKknActive = isKknActiveNow();
 
   useEffect(() => {
-    if (canvasRef.current && qr?.token) {
-      generateQrCanvas(qr.token, canvasRef.current).catch(console.error);
-    }
-  }, [qr?.token]);
+    if (!qr?.token) return;
+    if (!canvasRef.current) return;
+
+    console.log('Current QR token:', qr.token);
+    console.log('QR expires:', qr.expires_at);
+
+    void generateQrCanvas(qr.token, canvasRef.current);
+  }, [qr?.token, qr?.expires_at]);
 
   const handleGenerate = async () => {
     if (!isKknActive) return;
@@ -88,6 +92,7 @@ export default function QrManagementPage() {
             {/* QR Code Canvas */}
             <div className="relative inline-block p-4 bg-white rounded-lg border border-gray-200 shadow-inner">
               <canvas
+                key={qr?.token}
                 ref={canvasRef}
                 width={256}
                 height={256}
