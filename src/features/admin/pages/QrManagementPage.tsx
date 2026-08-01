@@ -20,22 +20,12 @@ import { useToast } from '@/components/ui/Toast';
 
 export default function QrManagementPage() {
   const { toast } = useToast();
-  const { qr, isLoading, isGenerating, countdown, formatCountdown, generateQr, toast: hookToast } = useActiveQR();
+  const { qr, isLoading, isGenerating, countdown, formatCountdown, generateQr } =
+    useActiveQR();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
 
   const isKknActive = isKknActiveNow();
-
-  // Show toast from hook
-  useEffect(() => {
-    if (hookToast) {
-      if (hookToast.type === 'success') {
-        toast.success(hookToast.message);
-      } else {
-        toast.error(hookToast.message);
-      }
-    }
-  }, [hookToast, toast]);
 
   useEffect(() => {
     if (canvasRef.current && qr?.token) {
@@ -47,9 +37,8 @@ export default function QrManagementPage() {
     if (!isKknActive) return;
     try {
       await generateQr();
-      // Toast is handled by the hook via hookToast
     } catch {
-      // Error toast is handled by the hook via hookToast
+      // Error toast already shown by useGenerateQr
     }
   };
 

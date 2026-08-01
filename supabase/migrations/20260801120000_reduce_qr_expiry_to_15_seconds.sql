@@ -48,8 +48,8 @@ begin
     );
   end if;
 
-  v_new_token := encode(gen_random_bytes(32), 'hex');
-  v_new_qr_id := gen_random_uuid();
+  v_new_token := encode(extensions.gen_random_bytes(32), 'hex');
+  v_new_qr_id := extensions.gen_random_uuid();
 
   insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
   values (v_new_qr_id, v_new_token, true, v_expires_at, null);
@@ -118,8 +118,8 @@ begin
 
   update public.qr_sessions set is_active = false where is_active = true;
 
-  v_new_token := encode(gen_random_bytes(32), 'hex');
-  v_new_qr_id := gen_random_uuid();
+  v_new_token := encode(extensions.gen_random_bytes(32), 'hex');
+  v_new_qr_id := extensions.gen_random_uuid();
 
   insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
   values (v_new_qr_id, v_new_token, true, v_expires_at, p_admin_id);
@@ -240,8 +240,8 @@ begin
   )
   returning * into v_attendance;
 
-  v_new_token := encode(gen_random_bytes(32), 'hex');
-  v_new_qr_id := gen_random_uuid();
+  v_new_token := encode(extensions.gen_random_bytes(32), 'hex');
+  v_new_qr_id := extensions.gen_random_uuid();
 
   insert into public.qr_sessions (id, token, is_active, expires_at, created_by)
   values (v_new_qr_id, v_new_token, true, v_expires_at, null);

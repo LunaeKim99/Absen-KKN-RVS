@@ -19,9 +19,9 @@ interface ToastItem {
 
 interface ToastContextType {
   toast: {
-    success: (message: string) => void;
-    error: (message: string) => void;
-    info: (message: string) => void;
+    success: (message: string, options?: { id?: string }) => void;
+    error: (message: string, options?: { id?: string }) => void;
+    info: (message: string, options?: { id?: string }) => void;
   };
 }
 
@@ -30,19 +30,29 @@ const ToastContext = createContext<ToastContextType | null>(null);
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
-  const addToast = useCallback((type: ToastType, message: string) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, type, message }]);
-  }, []);
+  const addToast = useCallback(
+    (type: ToastType, message: string, options?: { id?: string }) => {
+      const toastId = options?.id || Math.random().toString(36).substring(2, 9);
+
+      setToasts((prev) => {
+        // Deduplicate: if a toast with this id already exists, skip.
+        if (options?.id && prev.some((t) => t.id === toastId)) {
+          return prev;
+        }
+        return [...prev, { id: toastId, type, message }];
+      });
+    },
+    [],
+  );
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const toast = {
-    success: (message: string) => addToast('success', message),
-    error: (message: string) => addToast('error', message),
-    info: (message: string) => addToast('info', message),
+    success: (message: string, options?: { id?: string }) => addToast('success', message, options),
+    error: (message: string, options?: { id?: string }) => addToast('error', message, options),
+    info: (message: string, options?: { id?: string }) => addToast('info', message, options),
   };
 
   return (
