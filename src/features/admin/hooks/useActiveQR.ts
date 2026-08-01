@@ -9,24 +9,27 @@ interface QrSessionWithUsedBy extends QrSession {
   profiles?: { name: string } | null;
 }
 
-/** Module-level guard: prevent concurrent auto-rotate RPC calls from client side. */
-let rotateInFlight: Promise<ActiveQrResponse | null> | null = null;
+/** Module-level single-flight guard: prevent concurrent get_active_qr RPC calls. */
+let activeQrInFlight: Promise<ActiveQrResponse | null> | null = null;
 
-async function rotateQrOnce(): Promise<ActiveQrResponse | null> {
-  if (rotateInFlight) return rotateInFlight;
+/**
+ * Fetch the active QR straight from the RPC — the single source of truth.
+ * get_active_qr() invalidates silently-expired tokens and atomically creates
+ * a fresh one, so calling it directly is all we need (no qr_sessions read).
+ */
+async function fetchActiveQrOnce(): Promise<ActiveQrResponse | null> {
+  if (activeQrInFlight) return activeQrInFlight;
 
-  rotateInFlight = (async () => {
+  activeQrInFlight = (async () => {
     const { data, error } = await supabase.rpc('get_active_qr');
-
     if (error) throw error;
-
     return data as ActiveQrResponse | null;
   })();
 
   try {
-    return await rotateInFlight;
+    return await activeQrInFlight;
   } finally {
-    rotateInFlight = null;
+    activeQrInFlight = null;
   }
 }
 
@@ -47,43 +50,20 @@ function toQrSession(rpc: ActiveQrResponse | null): QrSessionWithUsedBy | null {
 }
 
 /**
- * Query: fetch the currently valid active QR.
- * - If a valid (non-expired, active) QR exists, return it.
- * - Otherwise call `rotateQrOnce()` (single-flight) which creates a fresh token.
+ * Query: fetch the currently valid active QR from get_active_qr() RPC only.
+ * qr_sessions is not queried — it's history only.
  */
 export function useActiveQr() {
   return useQuery<QrSessionWithUsedBy | null>({
     queryKey: ['admin', 'qr'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('qr_sessions')
-        .select('*, profiles!used_by(name)')
-        .eq('is_active', true)
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      if (data) {
-        const profilesRaw = (data as { profiles?: unknown }).profiles;
-        let profileName: string | null = null;
-        if (Array.isArray(profilesRaw)) {
-          profileName = profilesRaw[0]?.name;
-        } else if (profilesRaw && typeof profilesRaw === 'object' && 'name' in profilesRaw) {
-          profileName = (profilesRaw as { name?: string }).name ?? null;
-        }
-        return {
-          ...data,
-          profiles: profileName ? { name: profileName } : null,
-        } as QrSessionWithUsedBy;
-      }
-
-      // No valid active QR (expired or none): auto-rotate via RPC (guarded).
-      const rpc = await rotateQrOnce();
+      const rpc = await fetchActiveQrOnce();
       return toQrSession(rpc);
     },
     refetchInterval: 2000,
     staleTime: 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 }
 
@@ -192,29 +172,16 @@ export function useActiveQR() {
     return () => clearInterval(interval);
   }, [qr?.expires_at]);
 
-  // Auto-regenerate exactly when the QR truly expires.
-  // Countdown hits 0 ~1s before `expires_at` due to Math.floor, so schedule
-  // the rotation at expiry + 100ms — guarantees get_active_qr rotates the token.
+  // Auto-regenerate when countdown reaches 0: invalidate so the query refetches
+  // get_active_qr() which rotates the expired token into a fresh one.
   useEffect(() => {
-    if (countdown !== 0 || !qr || isLoading) return;
+    if (!qr) return;
 
-    const expiry = new Date(qr.expires_at).getTime();
-    const delay = Math.max(expiry - Date.now() + 100, 0);
-
-    const timer = setTimeout(() => {
-      console.log('QR expired, auto-regenerating');
-      rotateQrOnce()
-        .then((rpc) => {
-          const next = toQrSession(rpc);
-          if (next) {
-            queryClient.setQueryData(['admin', 'qr'], next);
-          }
-        })
-        .catch((err) => console.error('Auto-regenerate QR failed:', err));
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [countdown, qr, isLoading, queryClient]);
+    if (countdown <= 0) {
+      console.log('QR expired, invalidating query to auto-regenerate');
+      queryClient.invalidateQueries({ queryKey: ['admin', 'qr'] });
+    }
+  }, [countdown, qr, queryClient]);
 
   // QR Realtime: only invalidate on actual DB row changes (INSERT/UPDATE/DELETE),
   // and skip events that describe no change to the tracked QR.
