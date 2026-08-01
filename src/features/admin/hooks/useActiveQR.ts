@@ -192,10 +192,17 @@ export function useActiveQR() {
     return () => clearInterval(interval);
   }, [qr?.expires_at]);
 
-  // Auto-regenerate when countdown reaches 0.
+  // Auto-regenerate exactly when the QR truly expires.
+  // Countdown hits 0 ~1s before `expires_at` due to Math.floor, so schedule
+  // the rotation at expiry + 100ms — guarantees get_active_qr rotates the token.
   useEffect(() => {
-    if (countdown === 0 && qr && !isLoading) {
-      console.log('Countdown 0, auto-regenerating QR');
+    if (countdown !== 0 || !qr || isLoading) return;
+
+    const expiry = new Date(qr.expires_at).getTime();
+    const delay = Math.max(expiry - Date.now() + 100, 0);
+
+    const timer = setTimeout(() => {
+      console.log('QR expired, auto-regenerating');
       rotateQrOnce()
         .then((rpc) => {
           const next = toQrSession(rpc);
@@ -204,7 +211,9 @@ export function useActiveQR() {
           }
         })
         .catch((err) => console.error('Auto-regenerate QR failed:', err));
-    }
+    }, delay);
+
+    return () => clearTimeout(timer);
   }, [countdown, qr, isLoading, queryClient]);
 
   // QR Realtime: only invalidate on actual DB row changes (INSERT/UPDATE/DELETE),

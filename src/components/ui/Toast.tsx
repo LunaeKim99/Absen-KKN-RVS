@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from 'react';
 import { cn } from '@/lib/utils';
@@ -29,13 +30,23 @@ const ToastContext = createContext<ToastContextType | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const lastShownRef = useRef<Record<string, number>>({});
 
   const addToast = useCallback(
     (type: ToastType, message: string, options?: { id?: string }) => {
       const toastId = options?.id || Math.random().toString(36).substring(2, 9);
+      const now = Date.now();
+
+      // Cooldown: if a toast with this id was shown within the last second,
+      // skip to prevent rapid-fire duplicates (e.g. double click or StrictMode).
+      const lastShownAt = lastShownRef.current[toastId];
+      if (options?.id && lastShownAt && now - lastShownAt < 1000) {
+        return;
+      }
+      lastShownRef.current[toastId] = now;
 
       setToasts((prev) => {
-        // Deduplicate: if a toast with this id already exists, skip.
+        // Deduplicate: if a toast with this id already exists, skip stacking.
         if (options?.id && prev.some((t) => t.id === toastId)) {
           return prev;
         }
