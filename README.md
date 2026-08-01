@@ -1,7 +1,16 @@
 # Absensi KKN
 
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel&logoColor=white)](https://absen-kkn-rvs.vercel.app)
+[![React](https://img.shields.io/badge/React_19-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite_8-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Aplikasi web absensi untuk mahasiswa KKN (Kuliah Kerja Nyata) yang dibangun dengan React 19, TypeScript, Vite, dan Supabase. Mendukung absensi berbasis QR code dengan rotasi token otomatis, manajemen pengguna admin, dan dashboard statistik real-time.
 
+**Live Demo:** https://absen-kkn-rvs.vercel.app  
 **Periode KKN:** 27 Juli 2026 – 6 September 2026 (durasi 42 hari)  
 **Timezone:** Asia/Jakarta (WIB, UTC+7)
 
